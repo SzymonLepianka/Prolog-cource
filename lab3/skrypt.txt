@@ -1,0 +1,60 @@
+Listy (do przygotowania w domu):
+
+	trzeci_element([_,_,Trzeci|_], Trzeci).
+
+	nty_element([Element|_], 1, Element).
+	nty_element([_|Reszta], N, Element) :-
+   		N > 1,
+   		N1 is N - 1,
+   		nty_element(Reszta, N1, Element).
+
+
+Zadanie 1: Lista kontaktów 2.0:
+
+	process_command(list) :- 
+    		writeln('Znajomi:'), 
+    		foreach(jest_znajomym(Imie), 
+            		format('imie: ~w\n', [Imie])).
+
+Zadanie 2: Biblioteczka:
+
+	czy_zachodza(A-B, C-D) :- A < D, B > C.
+	jaki_wiek(A-B, Wiek) :- Wiek is B - A.
+	max(A1-W1, _-W2, A1-W1) :- W1 >= W2.
+	max(_-W1, A2-W2, A2-W2) :- W2 > W1.
+
+	setof(Autor, (A,B,C,D)^ksiazka(A,B, autor(Autor, C), D),Autorzy).
+
+	findall(Ksiazka, (ksiazka(_,Ksiazka, autor(_,_-B), wydanie(_,Data)), Data &gt; B), Ksiazki).
+
+	findall(Autor-Ksiazki, bagof(Tytul, (A, B, C, D)^(ksiazka(A, Tytul, autor(Autor, C), D)), Ksiazki), Lista).
+
+	setof(Autor1-Autor2, (A, B, C, D, E, F, G, H, I, J)^(ksiazka(A, B, autor(Autor1, C-D), E), ksiazka(F, G, autor(Autor2, H-I), J), Autor1 \= Autor2, czy_zachodza(C-D, H-I)), Lista).
+
+	findall(Autor-Wiek, (ksiazka(_, _, autor(Autor, A-B), _), jaki_wiek(A-B, Wiek)), Lista), foldl(max, Lista, none-0, Wynik).
+
+Zadanie 3: Arytmetyka list:
+
+	list_number([],0).
+	list_number([_|X], Y) :- 
+    		list_number(X, N),
+    		Y is N + 1.
+
+	list_add([], L1, L1).
+	list_add([X|Y], Z, [X|W]) :- 
+    		list_add( Y, Z, W).
+
+	jedynka(_, 1).
+	sumuj(A,B,C) :- C is A+B.
+	polacz(X, Y, [X|Y]).
+
+	list_number_mfr(L, Length) :- 
+    		maplist(jedynka, L, Wynik),
+		foldl(sumuj, Wynik, 0, Length).
+
+	%redukuj(_,X,Z) :- Z is X + 1.
+	%list_number_mfr(L, Length) :- foldl(redukuj, L, 0, Length).
+
+	list_add_mfr(L1, L2, L3) :- 
+    		foldl(polacz, L1, [], Wynik1),
+		foldl(polacz, Wynik1, L2, L3).

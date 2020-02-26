@@ -1,0 +1,86 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Dalej niż koniunkcja i alternatywa
+</div>
+
+<div class="nb-cell markdown" name="md5">
+Dzisiejsze zadanie polega na rozszerzeniu składni Prologa o dwie konstrukcje: 
+- nie do końca nową, ale bezcenną, "negację"
+- to, czego często w Prologu nam brakowało, instrukcję warunkową "if else"
+</div>
+
+<div class="nb-cell markdown" name="md7">
+### Negacja
+</div>
+
+<div class="nb-cell markdown" name="md8">
+Do implementacji negacji potrzebne będą nam dwa elementy: _call/1_ i operator odcięcia `!`.
+
+Definicja negacji _neg/1_ brzmi następująco:
+- jeżeli udało się znaleźć chociaż jeden wynik zapytania, negacja ponosi porażkę
+- w innym wypadku negacja się powiodła
+
+
+Poniżej znajduje się miejsce na implementację negacji oraz dwa zapytania testowe:
+</div>
+
+<div class="nb-cell program" data-background="true" name="p3">
+neg(Q) :- call(Q), !, false; true.
+</div>
+
+<div class="nb-cell query" name="q2">
+% powinno być false
+neg(5&gt;4).
+</div>
+
+<div class="nb-cell query" name="q3">
+% powinno być true
+neg(4&gt;5).
+</div>
+
+<div class="nb-cell markdown" name="md2">
+PS Jak dobrze wiemy, na co dzień powinniśmy używać operatora negacji `\+`.
+</div>
+
+<div class="nb-cell markdown" name="md6">
+### If Else
+
+Celem kolejne zadania jest zaimplementowanie predykatu _ifelse/3_, którego kolejne argumenty to:
+- zapytanie stanowiące warunek
+- zapytanie, które zostanie wykonane, jeżeli zapytanie warunkowe się powiedzie
+- zapytanie, które zostanie wykonane, jezeli zapytanie warunkowe się *nie* powiedzie
+</div>
+
+<div class="nb-cell markdown" name="md9">
+Sama konstrukcja nie różni się szczególnie od negacji, ponownie należy się posłużyć operatorem odcięcia i _call/1_. Opcjonalnie można użyć operatora alternatywy.
+
+Poniżej miejsce na predykat oraz dwa zapytania testowe:
+</div>
+
+<div class="nb-cell program" name="p4">
+ifelse(Warunek, Prawda, Falsz):- call(Warunek), !, Prawda; Falsz.
+</div>
+
+<div class="nb-cell query" name="q4">
+ifelse(5 &gt; 4, writeln(prawda), writeln(fałsz))
+</div>
+
+<div class="nb-cell query" name="q5">
+ifelse(4 &gt; 5, writeln(prawda), writeln(fałsz))
+</div>
+
+<div class="nb-cell markdown" name="md3">
+PS Prolog posiada wbudowany operator warunkowy. Jego składnia jest następująca:
+==
+(Warunek -&gt; True ; False)
+==
+
+Na przykład:
+</div>
+
+<div class="nb-cell query" name="q1">
+(4 &gt; 5 -&gt;  writeln(prawda) ; writeln(fałsz))
+</div>
+
+</div>

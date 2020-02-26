@@ -1,0 +1,380 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Metaprogramowanie vs Programowanie funkcyjne
+</div>
+
+<div class="nb-cell markdown" name="md2">
+Celem dzisiejszego ćwiczenie będzie zaimplementowanie podstawowych (i użytecznym technik) programowania funkcyjnego w Prologu. Potencjalne zyski są dwa:
+
+- poćwiczymy metaprogramowanie
+- zrozumiemy programowanie funkcyjne
+</div>
+
+<div class="nb-cell markdown" name="md17">
+Wszystkie poniższe zadania należy wykonywać w środowisku lokalnym, ewentualnie używająć [kompilatora on-line](https://rextester.com/l/prolog_online_compiler).
+</div>
+
+<div class="nb-cell markdown" name="md3">
+## Predykat vs Funkcja
+</div>
+
+<div class="nb-cell markdown" name="md4">
+Istnieje zasadnicza różnica między programowaniem funkcyjnym a logicznym - pierwsze posługuje się funkcjami, drugie predykatami. 
+
+Funkcje zwracają wynik, podczas gdy predykaty mogą zachodzić lub nie zachodzić dla zadanych argumentów. Efekt jest taki, że w Prologu nie ma jasnego podziału na wejście i wyjście predykatu. W funkcjach natomiast wszystkie argumenty wejściowe muszą mieć sprecyzowaną wartość.
+
+### Krok 1 - zamiana predykatu w funkcję
+
+Predykat w Prologu zapisywany jest jako ``nazwa/liczba argumentów``, np. `length/2` to dwargumentowy predykat o nazwie `length`.
+
+Umówmy się, że funkcje będziemy zapisywać jako ``nazwa/liczba argumentów/indeks argumentu wyjściowego)``, np. `length/2/2` to funkcja o nazwie `length`, dwóch argumentach, z czego argument `2` jest wyjściem.
+</div>
+
+<div class="nb-cell markdown" name="md5">
+### Zad 1. ``func_call`` powraca
+</div>
+
+<div class="nb-cell markdown" name="md6">
+Napisz metapredykat _func_call/3_, który:
+- jako pierwszy argument przyjmie nazwę funkcji, np. length/2/2
+- jako drugi argument przyjmie listę argumentów wejściowych
+- jako trzeci argument przyjmie zmienną, która przechowa wynik funkcji.
+
+
+#### Podpowiedzi:
+- _nth0/4_ i _nth1/4_ potrafią robić insert, którego używaliśmy na poprzednich zajęciach - warto zajrzeć do dokumentacji
+</div>
+
+<div class="nb-cell program" data-background="true" name="p1">
+% zadanie 1
+func_call(A/_/Res,B,C):-
+    !,
+    List=[A|B],
+    nth0(Res,List2,C,List),
+    Zapytanie =.. List2,
+    Zapytanie.
+    
+% zadanie 2
+func_call(A/Args,B,C) :-
+    !,
+    func_call(A/Args/Args,B,C).
+
+func_call(A,B,C) :-
+    !,
+    current_predicate(A/X),
+    func_call(A/X/X,B,C).
+
+% zadanie 3
+ :- op(500, xfx, &lt;#).
+ :- op(450, xfy, #).
+ :- op(400, fx, #).
+%odkomentować żeby zadanie 3 działało :)
+ %Result &lt;# Function # ArgsChain :- 
+ %    parse_args_chain(ArgsChain, Args), 
+ %    func_call(Function,Args,Result).
+
+ %parse_args_chain(H # T, [ H | TArgs]) :-
+ %    !,
+ %    parse_args_chain(T,TArgs).
+
+ % parse_args_chain(H, [H]). 
+
+
+% zadanie 4
+curry_call(function(Fun/NArgs/I,X),Arg,Result):-
+    !,
+    append(X,[Arg],Y),
+    N is NArgs-1,
+    (length(Y,N) -&gt;
+        func_call(Fun/NArgs/I,Y,Result);
+        Result=function(Fun/NArgs/I,Y)). 
+
+curry_call(function(Fun/NArgs,X),Arg,Result):-
+    !,
+    curry_call(function(Fun/NArgs/NArgs,X),Arg,Result).
+
+curry_call(function(Fun,X),Arg,Result):-
+    !,
+    current_predicate(Fun/NArgs),
+    curry_call(function(Fun/NArgs/NArgs,X),Arg,Result).
+
+% zadanie 5
+
+Result &lt;# Function # ArgsChain :-
+    initial_function(Function, IF),
+    curry(IF, ArgsChain, Result).
+
+initial_function(function(F,A), function(F,A)) :-
+    !.
+initial_function(F, function(F, [])).
+               
+%curry(F, A # T, Result) :-
+%    !,
+%	curry_call(F,A,R),
+%	curry_call(R,T,Result).
+
+%curry(F, A, Result) :-
+%    curry_call(F,A,Result).
+
+% zadanie 6 
+
+curry(F, A # T, Result) :-
+    !,
+    curry_unpack(A, UA),
+    curry_call(F, UA, Res),
+    curry(Res, T, Result).
+   
+curry(F, A, Result) :-
+    curry_unpack(A, UA),
+    curry_call(F, UA, Result).
+   
+curry_unpack(#(F # Args), AU) :-
+    !,
+    initial_function(F, IF),
+    curry(IF, Args, AU).
+    
+curry_unpack(A, A).
+</div>
+
+<div class="nb-cell markdown" name="md7">
+Poniżej przykładowe zapytania:
+</div>
+
+<div class="nb-cell query" name="q1">
+func_call(length/2/2, [[1,2,3]], X)
+</div>
+
+<div class="nb-cell query" name="q2">
+func_call(append/3/2, [[1,2],[1,2,3,4]], X)
+</div>
+
+<div class="nb-cell markdown" name="md9">
+### Zad 2. Wartości domyślne
+</div>
+
+<div class="nb-cell markdown" name="md10">
+Dopisz do bazy dodatkową wersję _func_call/3_, która zakłada, że zawsze ostatni argument jest wyjściowy:
+</div>
+
+<div class="nb-cell query" name="q4">
+func_call(length/2, [[1,2,3]], X)
+</div>
+
+<div class="nb-cell query" name="q5">
+func_call(append/3, [[1,2],[1,2,3,4]], X)
+</div>
+
+<div class="nb-cell markdown" name="md8">
+### Zad 3. Dobra składnia to podstawa
+</div>
+
+<div class="nb-cell markdown" name="md13">
+Naszemu funkcyjnemu językowi brakuje składni, pisanie ręcznie _func_call_ nie wydaje się warte zachodu. Proszę w bazie pod `func_call/3` zdefiniować dwa operatory:
+- operator przypisania wyniku funkcji do zmiennej `&lt;#`
+	- można zasugerować się definicją wbudowanego operatora `is`, z którą można zapoznać się w dokumentacji _op/2_
+- operator aplikacji argumentów do funkcji `#`
+	- ten operator musi wiązać mocniej od `&lt;#`
+</div>
+
+<div class="nb-cell markdown" name="md14">
+Następnie należy zdefiniować predykat ``&lt;#/2``, który zwyczajnie wykonuje `func_call` na swoich argumentach. Poniżej podpowiedź:
+</div>
+
+<div class="nb-cell program" name="p4">
+Result &lt;# Function # ArgsChain :- 
+    % czegoś tu brakuje
+    .
+</div>
+
+<div class="nb-cell markdown" name="md32">
+W efekcie poniższe wyrażenia powinny zwracać odpowiednie wyniki:
+</div>
+
+<div class="nb-cell query" name="q3">
+X &lt;# length/2 # [[1,2,3]]
+</div>
+
+<div class="nb-cell query" name="q8">
+X &lt;# append/3 # [[1,2],[3,4]]
+</div>
+
+<div class="nb-cell markdown" name="md16">
+Pójdźmy jeszcze krok dalej i pozbądźmy się tych nadmiarowych kwadratowych nawiasów. Należy zdefiniować operator `#` w taki sposób, żeby pozwolił na łańcuchowanie w prawą stronę. Następnie trzeba poprawić definicję predykatu `&lt;#` tak, żeby zebrał wszystkie argumenty `#` w listę, by były możliwe poniższe zapytania:
+</div>
+
+<div class="nb-cell query" name="q9">
+X &lt;# length/2 # [1,2,3]
+</div>
+
+<div class="nb-cell query" name="q10">
+X &lt;# append/3 # [1,2] # [3,4]
+</div>
+
+<div class="nb-cell markdown" name="md31">
+Poniżej podpowiedź w postaci niedokończonego kodu:
+</div>
+
+<div class="nb-cell program" name="p3">
+Result &lt;# Function # ArgsChain :- 
+	parse_args_chain(ArgsChain, Args), 
+	func_call(Function, Args, Result).
+
+parse_args_chain(H # T, [H|TArgs]) :- 
+    !, 
+	% to jeszcze nie koniec listy argumentów
+	.
+parse_args_chain(H, X) :-
+    % a to już jest koniec
+    .
+</div>
+
+<div class="nb-cell markdown" name="md11">
+### Krok 2. Currying
+</div>
+
+<div class="nb-cell markdown" name="md15">
+Currying to nic innego jak dekompozycja funkcji wieloargumentowej na wiele funkcji jednoargumentowych. Jeżeli funkcja przyjmuje 2 argumenty (jak nasz `append`), to wywołanie z pierwszym argumentem powinno zwrócić nową funkcję `append`, której pierwszy argument już jest ustawiony i która tylko czeka na drugi argument:
+
+Oprócz:
+== 
+X &lt;# append/3 # [1,2] # [3,4]
+==
+
+Chcemy też móc zapisywać "tymczasowe" funkcje:
+==
+X &lt;# append/3 # [1,2],
+Y &lt;# X # [3,4].
+==
+
+``X`` powyżej przechowuje funkcję, która dokleja do `[1,2]` inną listę.
+</div>
+
+<div class="nb-cell markdown" name="md18">
+### Zad 4. `curry_call`
+</div>
+
+<div class="nb-cell markdown" name="md19">
+Żeby zaimplementować currying, musimy w jakiś sposób "przechowywać" pośrednie funkcje. W tym celu zdefiniujmy predykat `curry_call`, który w odróżnieniu od `func_call` zawsze przyjmuje pojedyncze argumenty. Następnie nowy argument doklejany jest do listy argumentów i:
+- jeżeli lista argumentów zawiera już wszystkie argumenty wejściowe funkcji, funkcja jest wywoływana używając `func_call`
+- jeżeli nadal brakuje argumentów, zwracamy term `function(NazwaFunkcji, ListaArgumentów)`.
+</div>
+
+<div class="nb-cell markdown" name="md20">
+W przykładzie:
+==
+X &lt;# append/3 # [1,2],
+Y &lt;# X # [3,4].
+==
+``X`` powinno przechowywać ``function(append/3, [[1,2]])``, natomiast ``Y`` już końcowy wynik obliczeń `[1,2,3,4]`.
+</div>
+
+<div class="nb-cell markdown" name="md21">
+*Polecenie:* zdefiniuj predykat `curry_call/3` o argumentach:
+1. funkcja, np. `function(append/3/3, [])`, gdzie drugi argument to lista zapamiętanych argumentów wejściowych funkcji - na początku pusta lista
+2. jeden argument wejściowy
+3. wynik:
+    - jeżeli lista argumentów po dodaniu nowego argumentu ma długość równą liczbie argumentów wejściowych funkcji, wynikiem jest wynik `func_call/3`
+    - jeżeli nowa lista argumentów wciąż jest za krótka zwracamy nową funkcję
+</div>
+
+<div class="nb-cell markdown" name="md22">
+Przykładowe zapytanie:
+</div>
+
+<div class="nb-cell query" name="q11">
+curry_call(function(append/3/3, []), [1,2], X),
+curry_call(X, [3,4], Y).
+</div>
+
+<div class="nb-cell markdown" name="md25">
+Analogicznie do `func_call` należy napisać wersje obsługujące niepełne nazwy funkcji, np. `append/3`.
+</div>
+
+<div class="nb-cell markdown" name="md23">
+### Zad 5. I znowu "lukier składniowy"
+</div>
+
+<div class="nb-cell markdown" name="md24">
+Cel jest prosty, chcemu zamiast powyższego potwora móc pisać:
+</div>
+
+<div class="nb-cell query" name="q12">
+X &lt;# append/3 # [1,2] # [3,4].
+</div>
+
+<div class="nb-cell markdown" name="md27">
+lub:
+</div>
+
+<div class="nb-cell query" name="q13">
+X &lt;# append/3 # [1,2], 
+Y &lt;# X # [3,4].
+</div>
+
+<div class="nb-cell markdown" name="md26">
+*Potrzebne zmiany:*
+</div>
+
+<div class="nb-cell markdown" name="md28">
+1. Każdy operator `#` odpowiada teraz pojedynczemu wywołaniu `curry_call`
+2. Operator `&lt;#` ma za zadanie podać funkcję z pustą liczbą argumentów (e.g., `function(append/3, [])` jako argument pierwszego `curry_call` (chyba, że funkcja już będzie miała zapisane argumenty, wtedy trzeba przekazać je zamiast pustej listy) i przechwycić wynik ostatniego `curry_call` do zmiennej po lewej (e.g. ``X``).
+</div>
+
+<div class="nb-cell markdown" name="md29">
+Poniżej trochę podpowiedzi w postaci niedokończonego kodu:
+</div>
+
+<div class="nb-cell program" name="p2">
+Result &lt;# Function # ArgsChain :-
+    initial_function(Function, IF),
+    curry(IF, ArgsChain, Result).
+
+initial_function(function(F,A), function(F,A)) :-
+    !.
+initial_function(F, function(F, [])).
+                    
+curry(F, A # T, Result) :-
+    !,
+    % przypadek, gdy jeszcze nie doszliśmy do końca argumentów
+    .
+curry(F, A, Result) :-
+    % przypadek, gdy już doszliśmy do końca argumentów
+    .
+</div>
+
+<div class="nb-cell markdown" name="md33">
+#### Zad 6. Zagnieżdzanie
+</div>
+
+<div class="nb-cell markdown" name="md34">
+Proszę zdefiniować jednoargumentowy prefiksowy operator `#`, który będzie służył do zagnieżdżania wywołań.
+
+Poniższe zapytanie:
+</div>
+
+<div class="nb-cell query" name="q14">
+X &lt;# append/3 # #(append/3 # [1] # [2]) # #(append/3 # [3] # [4]).
+</div>
+
+<div class="nb-cell markdown" name="md35">
+Powinno zwrócić ten sam wynik, co:
+</div>
+
+<div class="nb-cell query" name="q15">
+X &lt;# append/3 # [1,2] # [3,4]
+</div>
+
+<div class="nb-cell markdown" name="md36">
+Poza dopisaniem nowego operatora, konieczne będzie przerobienie predykatu `curry` tak, żeby sprawdzał, czy ``A`` nie jest równy jakiemuś ``#(OtherFunction # OtherArgs)``. W takim wypadku powinien się wykonać rekurencyjnie na ``OtherFunction # OtherArgs`` i wynik przekazac jako argument do ``F``.
+</div>
+
+<div class="nb-cell markdown" name="md37">
+Inny przykład zapytania tego typu:
+</div>
+
+<div class="nb-cell query" name="q16">
+X &lt;# length/2 # #(append/3 # [1,2] # [2,3])
+</div>
+
+</div>

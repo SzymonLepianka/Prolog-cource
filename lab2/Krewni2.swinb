@@ -1,0 +1,56 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Krewni - podejście drugie
+</div>
+
+<div class="nb-cell markdown" name="md2">
+Poniżej znajduje się fragment doskonale nam już znanej bazy wiedzy:
+</div>
+
+<div class="nb-cell program" name="p1">
+:- dynamic done/2.
+
+jest_przodkiem(X,Y) :- jest_rodzicem(X,Y).
+jest_przodkiem(X,Y) :- jest_rodzicem(Z,Y),
+                       jest_przodkiem(X,Z).
+
+jest_krewnym(X,Y) :- jest_przodkiem(Z,X),
+                     jest_przodkiem(Z,Y),
+    				 X \= Y.
+
+jest_krewnym_2(X,Y) :- 	jest_krewnym(X,Y),
+    					\+ (done(X,Y); done(Y,X)),
+    					assert(done(X,Y)).
+
+
+% jest_rodzicem(imię rodzica, imię dziecka)
+jest_rodzicem(kasia,robert).
+jest_rodzicem(kasia,michał).
+jest_rodzicem(tomek,robert).
+jest_rodzicem(tomek,eliza).
+jest_rodzicem(robert,miriam).
+</div>
+
+<div class="nb-cell markdown" name="md3">
+Wydaje się wyglądać poprawnie, ale wynik poniższego zapytania może nei być satysfakcjonujący:
+</div>
+
+<div class="nb-cell query" name="q1">
+jest_krewnym(X,Y).
+</div>
+
+<div class="nb-cell markdown" name="md4">
+Proszę wypisać wszystkie wyniki zapytania. Można zauważyć dwa problemy otrzymanych par `X` i `Y`:
+
+1. relacja jest zwrotna, i tę samą parę zawsze otrzymujemy dwa razy, np. `X = eliza, Y = miriam` i `X = miriam, Y = eliza` 
+2. wyniki się powtarzają, np. wynik `X = robert, Y = miriam`, pojawia się dwa razy, jako drugi i szósty wynik.
+</div>
+
+<div class="nb-cell markdown" name="md5">
+## Misja
+
+Napraw predykat `jest_krewnym/2` tak, żeby każda para krewnych pojawiała się w wynikach tylko raz. Użyj w tym celu niedawno poznanych predykatów `assert` i `retractall`.
+</div>
+
+</div>

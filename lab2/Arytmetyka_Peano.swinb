@@ -1,0 +1,110 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Arytmetyka Peano
+
+Dotychczas, do robienia obliczeń stosowaliśmy wbudowaną arytmetykę opartą o operator `is`. Teraz spróbujemy do tego samego zadania podejść w sposób deklaratywny, implementując liczby naturalne 
+zgodnie z [arytmetyką Peano](https://pl.wikipedia.org/wiki/Aksjomaty_i_konstrukcje_liczb#Aksjomatyka_Peana). We wspomnianej arytmetyce mamy jedną stałą, nazwijmy ją `zero`, która odpowiada zeru 
+znanemu jeszcze z podstawówki. Poza tym istnieje jeszcze jeden predykat następnika `s` (jak successor), która reprezentuję liczbę o jeden większą niż jego argument.
+
+Zatem, jezeli `zero` to `0`, to `s(zero)` to `1`, `s(s(s(zero)))` to `3`, etc.
+
+Poniższe misje będą wymagały zaimplementowania trzech rekurencyjnych predykatów operujących na liczbach Peano.
+
+## Misja 1: tłumaczenie
+Liczby Peano mogą być ciut nieczytelne... Uzupełnij predykat `peano_number/2` tak, żeby tłumaczył liczby Peano na zwykłe liczby.
+</div>
+
+<div class="nb-cell program" data-background="true" name="p1">
+% peano_number(liczba peano, liczba naturalna)
+peano_number(zero,0).
+peano_number(s(X), Y) :- 
+    peano_number(X,Z),
+    Y is Z + 1.
+</div>
+
+<div class="nb-cell markdown" name="md3">
+Poniżej przykładowe zapytanie :)
+</div>
+
+<div class="nb-cell query" name="q3">
+peano_number(s(s(s(zero))), X).
+</div>
+
+<div class="nb-cell markdown" name="md2">
+### Pytania:
+- Czy zaimplementowany predykat jest w stanie tłumaczyć liczby w obie strony?
+- Jeżeli tak, czy tłumaczenie w drugą stronę zawsze działa bezproblemowo?
+
+## Misja 2
+Podstawową operacją arytmetyki jest dodawanie. W arytmetyce Peano jest ono zdefiniowane przez dwa aksjomaty:
+
+- 8. x + zero = x
+- 9. x + s(y) = s(x + y)
+
+Proszę zaimplementować predykat `peano_add/3` implementujący powyższe aksjomaty.
+</div>
+
+<div class="nb-cell program" data-background="true" name="p2">
+% peano_add(liczba peano, liczba peano, liczba peano)
+peano_add(zero, A, A).
+peano_add(s(A), B, s(C)) :- 
+    peano_add(A, B, C).
+</div>
+
+<div class="nb-cell markdown" name="md4">
+Poniżej znowu miejsce na zapytanie:
+</div>
+
+<div class="nb-cell query" name="q4">
+peano_add(s(s(s(zero))), s(s(zero)), X), peano_number(X,R).
+</div>
+
+<div class="nb-cell markdown" name="md5">
+### Pytania:
+- Jak można zaimplementować odejmowanie Peano?
+- Czy jest możliwe napisanie zapytania, które zwróci wszystkie możliwy sumy Peano?
+
+## Misja 3: mnożenie
+
+Tu już bez zbędnych wstępów. Mamy dwa aksjomaty mnożenia:
+
+- 10. x * zero = zero
+- 11. x * s(y) = x * y + x
+
+Tym razem implementujemy `peano_times/3`:
+</div>
+
+<div class="nb-cell program" data-background="true" name="p3">
+% peano_mul(liczba peano, liczba peano, liczba peano)
+peano_times(zero, A, zero).
+peano_times(s(A), B, C) :- 
+    peano_times(A, B, D), 
+    peano_add(D, B, C).
+</div>
+
+<div class="nb-cell markdown" name="md6">
+Ponownie miejsce na zapytanie:
+</div>
+
+<div class="nb-cell query" name="q2">
+peano_times(s(s(s(zero))), s(s(zero)), X), peano_number(X,R).
+</div>
+
+<div class="nb-cell markdown" name="md7">
+### Pytania:
+- Jak można zaimplementować dzielenie bez reszty?
+- Czy można skonstruować zapytanie, które zwróc wszyskie możliwe iloczyny Peano?
+- W czym taka deklaratywna arytmetyka jest lepsza/w czym gorsza od tej zaimplementowanej w procesorach?
+
+## Pozostałe misje
+
+TLDW: proszę zaimplementować predykaty:
+- `peano_greater_than/2`, który działa jak operator porównujący `&gt;` 
+- `peano_div/3`, który implementuje dzielenie liczb naturalnych bez reszty
+- `peano_mod/3`, który oblicza resztę z dzielenia dwóch liczb naturalnych
+- `peano_is_even/1`, który sprawdza, czy liczba jest parzysta
+- `peano_is_odd/1`, który sprawdza, czy liczba jest nieparzysta
+</div>
+
+</div>

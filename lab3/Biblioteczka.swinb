@@ -1,0 +1,63 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Zapytania agregacyjne
+
+Proszę przyjrzeć się poniższej bazie danych o bliżej nieokreślonym księgozbiorze:
+</div>
+
+<div class="nb-cell program" data-background="true" name="p1">
+ksiazka(16, 'Flatlandia', autor('Edwin Abbott Abbott', 1838-1926), wydanie('Seel &amp; Co', 1884)). 
+ksiazka(28, 'R.U.R.', autor('Karel Čapek', 1890-1938), wydanie('Players Press', 2002)).
+ksiazka(29, 'Daszeńka, czyli żywot szczeniaka', autor('Karel Čapek', 1890-1938), wydanie('Nasza Księgarnia', 1989)).
+ksiazka(34, 'Kobieta z wydm', autor('Kobo Abe', 1924-1993), wydanie('Wydawnictwo Znak', 2007)).
+ksiazka(56, 'Zamek', autor('Franz Kafka', 1883-1924), wydanie('Zielona Sowa', 2001)).
+ksiazka(87, 'Gargantua i Pantagruel', autor('Francois Rabelais', 1494-1553), wydanie('Siedmioróg', 2004)).
+</div>
+
+<div class="nb-cell markdown" name="md2">
+# Misje
+Używając predykatów agregacyjnych, proszę napisać zapytania znajdujących poniższe wyniki:
+1. listę autorów książek, bez duplikatów
+2. listę tytułów książek, które zostały wydane po śmierci swojego autora
+3. listę par o postaci &lt;imię autora&gt; - &lt;lista napisanych przez niego książek&gt;.  
+4. listę par autorów, którzy mogli się spotkać za swojego życia - **podpowiedź:** warto zdefiniować osobno predykat sprawdzający, czy dwa okresy czasu nachodzą na siebie
+5. imię autora, który żył najdłużej - **podpowiedź:** proszę zastosować predykat _foldl/4_ do znalezienia maksymalnego elementu w liście
+</div>
+
+<div class="nb-cell markdown" name="md3">
+Poniżej znajdują się miejsca na zapytania :)
+</div>
+
+<div class="nb-cell program" name="p2">
+% miejsce na pomocnicze predykaty
+czy_zachodza(A-B, C-D) :- A &lt; D, B &gt; C, A =&lt; C.
+
+jaki_wiek(A-B, Wiek) :- Wiek is B - A.
+
+max(A1-W1, _-W2, A1-W1) :- W1 &gt;= W2.
+max(_-W1, A2-W2, A2-W2) :- W2 &gt; W1.
+</div>
+
+<div class="nb-cell query" name="q1">
+setof(Autor, (A,B,C,D)^ksiazka(A,B, autor(Autor, C), D),Autorzy).
+</div>
+
+<div class="nb-cell query" name="q2">
+findall(Ksiazka, (ksiazka(_,Ksiazka, autor(_,_-B), wydanie(_,Data)), Data &gt; B), Ksiazki).
+</div>
+
+<div class="nb-cell query" name="q3">
+findall(Autor-Ksiazki, bagof(Tytul, (A, B, C, D)^(ksiazka(A, Tytul, autor(Autor, C), D)), Ksiazki), Lista).
+</div>
+
+<div class="nb-cell query" name="q4">
+setof(Autor1-Autor2, (A, B, C, D, E, F, G, H, I, J)^(ksiazka(A, B, autor(Autor1, C-D), E), ksiazka(F, G, autor(Autor2, H-I), J), Autor1 \= Autor2, czy_zachodza(C-D, H-I)), Lista).
+</div>
+
+<div class="nb-cell query" name="q5">
+findall(Autor-Wiek, (ksiazka(_, _, autor(Autor, A-B), _), jaki_wiek(A-B, Wiek)), Lista),
+foldl(max, Lista, none-0, Wynik).
+</div>
+
+</div>

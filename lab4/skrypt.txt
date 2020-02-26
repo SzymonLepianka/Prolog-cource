@@ -1,0 +1,66 @@
+usuń(_, [], []).
+usuń(Term, [Term|Tail], Tail).
+usuń(Term, [Head|Tail], [Head|Result]) :-
+  Term \= Head,
+  usuń(Term, Tail, Result).
+
+
+usuń_wszystkie(_, [], []).
+usuń_wszystkie(Term, [Term|Tail], Result) :-
+    usuń_wszystkie(Term, Tail, Result).
+usuń_wszystkie(Term, [Head|Tail], [Head|Result]) :-
+    Term \= Head,
+    usuń_wszystkie(Term, Tail, Result).
+
+
+dodaj(Element, Lista, [Element|Lista]).
+dodaj(Term, [Head|Tail],[Head|New_Tail]):-
+    dodaj(Term,Tail,New_Tail).
+
+
+palindrom(L):-
+  reverse(L, L).
+
+
+podlista([],[]).
+podlista([First|Rest],[First|Sub]):-
+    podlista(Rest,Sub).
+podlista([_|Rest],Sub):-
+    podlista(Rest,Sub).
+
+
+odetnij_z_lewej(0, Lista, Lista).
+odetnij_z_lewej(Term, [_|T], Result) :-
+    Term1 is Term - 1,
+    odetnij_z_lewej(Term1, T, Result).
+
+
+%odetnij_z_prawej(0, Lista, Lista).
+%odetnij_z_prawej(Term, Lista, Result) :-
+%    Term1 is Term - 1,
+%    append(MniejszaLista,[_], Lista),
+%    odetnij_z_prawej(Term1,MniejszaLista,Result).
+
+odetnij_z_prawej(A,B,C) :-
+    length(D,A),
+    append(C,D,B).
+
+
+zawiera(L,S):-
+    append([_,S,_],L).
+
+
+usuń(Term, [Term|Tail], Tail).
+usuń(Term, [Head|Tail], [Head|Result]) :-
+  usuń(Term, Tail, Result).
+
+permutacja([],[]).
+permutacja(L,[X|P]) :-
+	usuń(X,L,L1),
+	permutacja(L1,P).
+
+
+podziel([X], [X], []).
+podziel([X,Y], [X], [Y]).
+podziel([X,Y|A], [X|B], [Y|C]) :- podziel(A, B, C).
+

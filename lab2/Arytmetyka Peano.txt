@@ -1,0 +1,43 @@
+% peano_number(liczba peano, liczba naturalna)
+peano_number(zero,0).
+peano_number(s(X), Y) :- 
+    peano_number(X,Z),
+    Y is Z + 1.
+
+
+
+
+% peano_add(liczba peano, liczba peano, liczba peano)
+peano_add(zero, A, A).
+peano_add(s(A), B, s(C)) :- 
+    peano_add(A, B, C).
+
+
+
+
+% peano_times(liczba peano, liczba peano, liczba peano)
+peano_times(zero, A, zero).
+peano_times(s(A), B, C) :- 
+    peano_times(A, B, D), 
+    peano_add(D, B, C).
+
+
+
+%odejmowanie
+peano_diff(A, zero, A).
+peano_diff(A, s(B), C) :-
+	peano_diff(A, B, s(C)).
+
+
+
+%dzielenie
+peano_div(zero, X, zero).
+peano_div(X,Y,s(Z)) :- peano_diff(X,Y,A), peano_div(A,Y,Z).
+
+
+%czy większe
+peano_greater_than(X,zero).
+peano_greater_than(s(X),s(Y)) :- peano_greater_than(X,Y), X \= Y.
+
+
+

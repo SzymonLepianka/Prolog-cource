@@ -1,0 +1,23 @@
+niesort([],_,[]).
+niesort([A-B|T], Spotkane,[A-B|NT]) :-
+    \+ member(A-B, Spotkane), niesort(T,[A-B,B-A|Spotkane],NT).
+niesort([H|T], Spotkane, NT) :-
+    member(H, Spotkane), niesort(T,[H|Spotkane],NT).
+
+findall(X-Y, jest_krewnym(X,Y), Lista), niesort(Lista, [], Wynik).
+
+
+wfold(A-B, Dotychczasowe, [A-B|Dotychczasowe]) :-
+    \+ member(A-B, Dotychczasowe),
+    \+ member(B-A, Dotychczasowe).
+wfold(A-B, Dotychczasowe, Dotychczasowe) :-
+    member(A-B, Dotychczasowe);
+    member(B-A, Dotychczasowe).
+
+findall(X-Y, jest_krewnym(X,Y), Lista), foldl(wfold, Lista, [], Wynik).
+
+setof(Autor, (A,B,C,D,E)^ksiazka(A,B, autor(Autor, C), wydanie(D,E)),Autorzy).
+findall(Ksiazka, (ksiazka(_,Ksiazka, autor(_,_-B), wydanie(_,Data)), Data > B), Ksiazki).
+bagof(Nazwa, (A,C,D)^ksiazka(A,Nazwa, autor(Autor,C), D), Tytuly).
+
+findall(A1-A2, (ksiazka(_,_,autor(A1,A-B),_), ksiazka(_,_,autor(A2,C-D),_), A1\=A2, czy_zachodza(A-B,C-D)), Pary), niesort(Pary, [], Wynik).

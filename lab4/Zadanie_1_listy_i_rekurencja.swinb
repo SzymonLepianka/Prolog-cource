@@ -1,0 +1,199 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Rekurencyjne przetwarzanie list - zadania
+</div>
+
+<div class="nb-cell markdown" name="md2">
+### 1. usuń/3
+
+Napisz rekurencyjny predykat _usuń/3_, który usuwa z listy pierwsze wystąpienie danego elementu, np. dla zapytania ``usuń(3,[1,3,2,1,2,3],X)`` oczekiwanym wynikiem jest ``X = [1,2,1,2,3]``.
+
+#### Podpowiedzi:
+- można się inspirować predykatem _jest_elementem/2_
+</div>
+
+<div class="nb-cell program" name="p1">
+usuń(_, [], []).
+usuń(Term, [Term|Tail], Tail).
+usuń(Term, [Head|Tail], [Head|Result]) :-
+  Term \= Head,
+  usuń(Term, Tail, Result).
+</div>
+
+<div class="nb-cell query" name="q1">
+usuń(3,[1,3,2,1,3,2],X)
+</div>
+
+<div class="nb-cell markdown" name="md3">
+### 2. usuń_wszystkie/3
+
+Napisz rekurencyjny predykat _usuń_wszystkie/3_, który usuwa wszystkie wystąpienia danego elementu z listy, np. dla zapytania ``usuń_wszystkie(3,[1,2,3,1,2,3],X)`` oczekiwanym wynikiem jest ``X = [1,2,1,2]``. 
+
+#### Podpowiedzi:
+- _jest_elementem/2_ vs _member/2_
+</div>
+
+<div class="nb-cell program" name="p3">
+usuń_wszystkie(_, [], []).
+usuń_wszystkie(Term, [Term|Tail], Result) :-
+    usuń_wszystkie(Term, Tail, Result).
+usuń_wszystkie(Term, [Head|Tail], [Head|Result]) :-
+    Term \= Head,
+    usuń_wszystkie(Term, Tail, Result).
+</div>
+
+<div class="nb-cell query" name="q2">
+usuń_wszystkie(3,[1,2,3,1,2,3],X)
+</div>
+
+<div class="nb-cell markdown" name="md4">
+### 3. dodaj/3
+Napisz predykat _dodaj/3_, który dodaje element do listy na dowolnym jej indeksie, np. ``dodaj(3,[1,2,1,2],X)`` da wynik ``X = [3,1,2,1,2]`` lub ``X = [1,3,2,1,2]`` lub ....
+
+#### Podpowiedzi
+- dodawanie elementu do odwrotność jego usuwania
+</div>
+
+<div class="nb-cell program" name="p4">
+dodaj(Element, Lista, [Element|Lista]).
+
+dodaj(Term, [Head|Tail],[Head|New_Tail]):-
+    dodaj(Term,Tail,New_Tail).
+</div>
+
+<div class="nb-cell query" name="q3">
+dodaj(3,[1,2,1,2],X)
+</div>
+
+<div class="nb-cell markdown" name="md5">
+### 4. palindrom/1
+</div>
+
+<div class="nb-cell markdown" name="md6">
+Lista jest palindromem, jeżeli czyta się jej elementy od prawej tak samo jak od lewej. Napisz predykat _palindrom/1_, który sprawdzi czy lista jest palindromem.
+
+#### Podpowiedzi:
+- proszę użyć predykatu odwracającego listę
+</div>
+
+<div class="nb-cell program" name="p5">
+palindrom(L):-
+  reverse(L, L).
+</div>
+
+<div class="nb-cell query" name="q4">
+palindrom([a,t,o,k,a,n,a,p,a,p,a,n,a,k,o,t,a])
+</div>
+
+<div class="nb-cell markdown" name="md7">
+### 5. podlista/2
+
+Lista _L2_ jest podlistą _L1_ jeżeli znajdują się w niej jedynie elementy _L1_ (niekoniecznie wszystkie), w tej samej kolejności co w _L1_. Proszę napisać predykat _podlista/2_, który znajduje podlistę dla zadanej listy. Dla zapytania ``podlista([a,b,c],X)`` mamy osiem możliwych wyników, gdzie ``X`` może być równy: ``[a,b,c]``, ``[a,b]``, ``[a,c]``, ``[a]``, ``[b,c]``, ``[b]``, ``[c]``, ``[]``. 
+
+#### Podpowiedź:
+- należy to potraktować jako filtrowanie, które może zarówno zostawić jak i usunąć dowolny element.
+</div>
+
+<div class="nb-cell program" name="p7">
+podlista([],[]).
+podlista([First|Rest],[First|Sub]):-
+    podlista(Rest,Sub).
+podlista([_|Rest],Sub):-
+    podlista(Rest,Sub).
+</div>
+
+<div class="nb-cell query" name="q5">
+podlista([a,b,c],X).
+</div>
+
+<div class="nb-cell markdown" name="md8">
+### 6. odetnij/3
+Używając predykatów _length/2_ i _append/3_ napisz predykaty _odetnij_z_lewej/3_ i _odetnij_z_prawej/3, które odcina zadaną liczbę elementów z początku lub końca listy, np. dla ``odetnij_z_lewej(3,[1,2,3,4],X)`` powinno dać ``X=[4]``.
+</div>
+
+<div class="nb-cell program" name="p6">
+odetnij_z_lewej(0, Lista, Lista).
+odetnij_z_lewej(Term, [_|T], Result) :-
+    Term1 is Term - 1,
+    odetnij_z_lewej(Term1, T, Result).
+
+odetnij_z_prawej(A,B,C) :-
+    length(D,A),
+    append(C,D,B).
+</div>
+
+<div class="nb-cell query" name="q6">
+odetnij_z_lewej(3,[1,2,3,4],X)
+</div>
+
+<div class="nb-cell query" name="q7">
+odetnij_z_prawej(3,[1,2,3,4],X).
+</div>
+
+<div class="nb-cell markdown" name="md9">
+### 7. zawiera/2
+
+Napisz predykat _zawiera/2_, który sprawdza, czy lista _L1_ nie zawiera w sobie listy _L2_, tj. dla zapytania ``zawiera([1,2,3,4],[2,3])`` zwróci _true_, ponieważ ``[2,3]`` zawiera się w ``[1,2,3,4]``. 
+
+Uwaga: główna różnica od _podlisty/2_ polega na tym, że elementy _L2_ muszą występować obok siebie w _L1_.
+
+#### Podpowiedzi
+- użyj predykatu _append/2_ (to nie to samo, co _append/3_ !)
+</div>
+
+<div class="nb-cell program" name="p8">
+zawiera(A,B):-
+    append([_,B,_],A).
+</div>
+
+<div class="nb-cell query" name="q8">
+zawiera([1,2,3,4],X)
+</div>
+
+<div class="nb-cell markdown" name="md10">
+### 8. permutacja/2
+Napisz predykat _permutacja/2_, który znajduje permutację zadanej listy (permutacja ma te same elementy, ale niekoniecznie w tej samej kolejności), np. dla zapytania ``permutacja([d,w,a], X)`` otrzymamy ``X`` równe: ``[d,a,w]``, ``[w,d,a]``, ``[w,a,d]``, ``[a,d,w]``, ``[a,w,d]``.
+
+#### Podpowiedzi:
+- proszę użyć predykatu ``dodaj/3`` lub ``usuń/3``
+- permutacja pustej listy to pusta lista
+- permutacja listy, to permutacja jej ogona plus jej głowa umieszczona na dowolnym miejscu
+</div>
+
+<div class="nb-cell program" name="p9">
+usuń(Term, [Term|Tail], Tail).
+usuń(Term, [Head|Tail], [Head|Result]) :-
+  usuń(Term, Tail, Result).
+
+permutacja([],[]).
+permutacja(L,[X|P]) :-
+	usuń(X,L,L1),
+	permutacja(L1,P).
+</div>
+
+<div class="nb-cell query" name="q9">
+permutacja([d,w,a],X)
+</div>
+
+<div class="nb-cell markdown" name="md11">
+### 9. podziel/3
+Napisz predykat podziel/3, który dzieli listę na dwie listy o możliwie zbliżonej długości, np.
+- ``podziel([1],L,P)`` da ``L=[1],P=[]``
+- ``podziel([1,2],L,P)`` da ``L=[1],P=[2]``
+- ``podziel([1,2,3],L,P)`` da ``L=[1,3],P=[2]``
+- ``podziel([1,2,3,4],L,P)`` da ``L=[1,3],P=[2,4]``
+- ``podziel([1,2,3,4,5],L,P)`` da ``L=[1,3,5],P=[2,4]``
+</div>
+
+<div class="nb-cell program" name="p10">
+podziel([X], [X], []).
+podziel([X,Y], [X], [Y]).
+podziel([X,Y|A], [X|B], [Y|C]) :- podziel(A, B, C).
+</div>
+
+<div class="nb-cell query" name="q10">
+podziel([1,2,3,4,5], L, P)
+</div>
+
+</div>

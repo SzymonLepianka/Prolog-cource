@@ -1,0 +1,179 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Predykaty wyższego rzędu
+</div>
+
+<div class="nb-cell program" data-background="true" name="p2">
+% Na potrzeby zadań
+:- use_module(library(assoc)).
+
+% Może się przydać predykat wkładający elementy do 
+% listy na wskazanym indeksie
+insert(Element, 0, Lista, [Element|Lista]).
+insert(Element, I, [H|T], [H|NT]) :-
+    I &gt; 0,
+    NI is I - 1,
+    insert(Element, NI, T, NT).
+</div>
+
+<div class="nb-cell markdown" name="md5">
+*UWAGA* Wiele poniższych predykatów (zależnie od implementacji) może wymagać uruchomienia w środowisku lokalnym ze względu na mechanizmy bezpieczeństwa SWISH'a.
+</div>
+
+<div class="nb-cell markdown" name="md15">
+### 1. func_call/2
+</div>
+
+<div class="nb-cell markdown" name="md16">
+Napisz własną wersję _call/1_, która traktuje predykat jako funkcję. Ostatni argument predykatu jest traktowany jako wynik zapytania i jest zapisywany w zmiennej podanej jako drugi argument, tj. `func_call(append(A,B), C)` jest tym samym, co `append(A,B,C)`, `func_call(length(A), B)` jest tym samym, co `length(A,B)`, etc.
+</div>
+
+<div class="nb-cell program" name="p11">
+func_call(F,Result):-
+    F =.. List,
+    append(List,[Result],X),
+    Zapytanie =.. X,
+    Zapytanie.
+</div>
+
+<div class="nb-cell markdown" name="md17">
+Poniżej testowe zapytania:
+</div>
+
+<div class="nb-cell query" name="q4">
+func_call(append([1],[2,3]),X), X = [1,2,3].
+</div>
+
+<div class="nb-cell query" name="q5">
+func_call(length([1,2,3]), X), X = 3.
+</div>
+
+<div class="nb-cell markdown" name="md18">
+### 2. func_call/3
+
+_func_call/3_ działa tak samo jak _func_call/2_, z tą różnicą, że zmienna przechowująca wynik nie musi być ostatnim argumentem predykatu, tj. `func_call(suma(A,3,B), C)` jest tym samym, co `func_call(suma(A,B), C)`, ale `func_call(suma(A,2,B), C)` jest już tym samym, co `suma(A,C,B)`. Innymi słowy, drugi argument _func_call/3_ wskazuje na jakiej pozycji predykatu jest zmienna wynikowa.
+</div>
+
+<div class="nb-cell program" name="p12">
+func_call(Fun,Where,X):-
+    Fun =.. List,
+    insert(X,Where,List,L),
+    Zapytanie =.. L,
+    Zapytanie.
+</div>
+
+<div class="nb-cell markdown" name="md19">
+I tradycyjne zapytanie testowe.
+</div>
+
+<div class="nb-cell query" name="q12">
+func_call(append([1],[1,2,3]),2,X), X = [2,3].
+</div>
+
+<div class="nb-cell markdown" name="md2">
+### 3. include_assoc/3
+
+Napisz predykat _include_assoc/3_, który filtruje tablicę asocjacyjną (drugi argument) zadanym predykatem (pierwszy argument) i zapisuje wynik w trzecim argumencie. Predykat ma działać analogicznie do _include/3_. Predykat filtrujący powinien przyjmując jako argument parę `klucz`-`wartosc`.
+
+#### Zadania:
+- prostsza wersja (za połowę punktów): przed samym filtrowaniem  można zamienić tablicę na listę; po filtrowaniu można wrócić do postaci tablicowej
+- trudniejsza wersja: należy się inspirować predykatem _mapuj/3_, który był do przeczytania w domu. _min_assoc/3_, _del_min_assoc/4_, _put_assoc/4_ również mogą się przydać.
+</div>
+
+<div class="nb-cell program" name="p1">
+klucz_mniejszy_od_wartosci(K-V) :- K &lt; V.
+
+include_assoc(_,A,A):-
+    empty_assoc(A),!.
+
+include_assoc(P,A,R):-
+    del_min_assoc(A,K,V,A2),
+    (call(P,K-V) -&gt; (include_assoc(P,A2,Res),(K,Res,V,R));
+		include_assoc(P,A2,R)).
+</div>
+
+<div class="nb-cell markdown" name="md12">
+Tutaj znajduje się zapytanie testowe:
+</div>
+
+<div class="nb-cell query" name="q1">
+list_to_assoc([1-2,7-4,5-6], A), 
+include_assoc(klucz_mniejszy_od_wartosci, A, R), 
+assoc_to_list(R, Wynik),
+Wynik = [1-2,5-6].
+</div>
+
+<div class="nb-cell markdown" name="md3">
+### 4. reduce/3
+
+Wzorując się na na predykacie _mapuj/3_, napisz predykat _reduce/4_, który będzie zachowywał się dokładnie tak samo jak _foldl/4_:
+</div>
+
+<div class="nb-cell program" name="p3">
+dodaj(X,Y,Z) :- Z is X + Y.
+
+reduce(_, [] ,E, E).
+reduce(Predykat, [H|T], P, Sum) :-
+    call(Predykat, H, P, Ans), 
+    reduce(Predykat, T, Ans,Sum).
+</div>
+
+<div class="nb-cell markdown" name="md13">
+Poniżej zapytanie do testów:
+</div>
+
+<div class="nb-cell query" name="q2">
+reduce(dodaj, [1,2,3], 0, X).
+</div>
+
+<div class="nb-cell markdown" name="md4">
+### 5. findall_assoc/3
+
+Napisz predykat _findall_assoc/3_, który działa dokładnie tak samo jak _findall/3_, zamiast listy tworząc jednak tablicę asocjacyjną. Znalezione wartości mają być kluczami tablicy, ich wartości mogą być dowolne, np. mogą być stałą `t`, np. w notacji listowej: `[val1-t, val2-t, ..., val3-t]`.
+
+#### Podpowiedzi
+- wszystkie wyniki zapytania można zebrać w pętli opartej o _fail/0_ (_forall/2_ też da radę) i zapisać je do bazy używając _assert/1_ (dla uproszczenia można stworzyć jakiś własny predykat dynamiczny).
+- potem należy wyniki zebrać używając _retract/1_, który od razu wyczyści bazę z danych tymczasowych 
+- polecam zacząć od odtworzenia zwykłego _findall_, dopiero potem do przejścia na tablicę asocjacyjną
+</div>
+
+<div class="nb-cell program" name="p4">
+:- dynamic findallsol/1.
+:- dynamic findal_assoc_sol/2.
+
+findall_assoc(Key,Goal,_) :-
+        call(Goal),
+        assert(findal_assoc_sol(Key,t)),
+        fail.
+
+findall_assoc(_,_,Solutions) :-
+        collect_assoc(Solutions).
+
+collect_assoc(Solutions) :-
+        retract(findal_assoc_sol(Key,Value)),
+        !,
+        collect_assoc(RestSols),
+        put_assoc(Key,RestSols,Value,Solutions).
+
+collect_assoc(X):-
+ empty_assoc(X).
+
+collect(Solutions) :-
+        retract(findallsol(Template)),
+        !,
+        Solutions = [Template|RestSols],
+        collect(RestSols).
+collect([]).
+</div>
+
+<div class="nb-cell markdown" name="md14">
+Poniżej zapytanie testowe:
+</div>
+
+<div class="nb-cell query" name="q3">
+findall_assoc(X, between(1,5,X), Tablica), 
+assoc_to_list(Tablica, [1-t,2-t,3-t,4-t,5-t]).
+</div>
+
+</div>

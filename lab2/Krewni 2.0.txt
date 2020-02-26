@@ -1,0 +1,21 @@
+:- dynamic done/2.
+
+jest_przodkiem(X,Y) :- jest_rodzicem(X,Y).
+jest_przodkiem(X,Y) :- jest_rodzicem(Z,Y),
+                       jest_przodkiem(X,Z).
+
+jest_krewnym(X,Y) :- 	jest_przodkiem(Z,X),
+                     	jest_przodkiem(Z,Y),
+    			X \= Y.
+
+jest_krewnym_2(X,Y) :- 	jest_krewnym(X,Y),
+    			\+ (done(X,Y); done(Y,X)),
+    			assert(done(X,Y)).
+
+
+% jest_rodzicem(imię rodzica, imię dziecka)
+jest_rodzicem(kasia,robert).
+jest_rodzicem(kasia,michał).
+jest_rodzicem(tomek,robert).
+jest_rodzicem(tomek,eliza).
+jest_rodzicem(robert,miriam).

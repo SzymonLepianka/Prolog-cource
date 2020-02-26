@@ -1,0 +1,86 @@
+<div class="notebook">
+
+<div class="nb-cell markdown" name="md1">
+# Listy różnicowe i prosta rekurencja
+</div>
+
+<div class="nb-cell markdown" name="md5">
+Celem tych ćwiczeń jest uświadomienie sobie różnic między przetwarzaniem zwykłych list i list różnicowych.
+Żeby prawidłowo zrealizować zadania, należy najpierw zdefiniować predykat _is_empty_diff/1_, który sprawdzi, czy lista różnicowa jest pusta.
+</div>
+
+<div class="nb-cell program" data-background="true" name="p3">
+is_empty_diff(L-E) :- L == E.
+</div>
+
+<div class="nb-cell query" name="q2">
+% powinno być false
+is_empty_diff([a|T]-T).
+</div>
+
+<div class="nb-cell query" name="q3">
+% powinno być true
+is_empty_diff(T-T).
+</div>
+
+<div class="nb-cell markdown" name="md6">
+*Przypomnienie*: ==/2 sprawdza identyczność bez unifikacji
+
+*Pytanie*: czemu użyłem ==/2 zamiast =/2? Co by się stało, gdyby użyć zwykłej unifikacji?
+</div>
+
+<div class="nb-cell markdown" name="md2">
+### 1. length_diff/2
+Proszę napisać predykat _length_diff/2_, który policzy długość listy różnicowej:
+==
+?- length_diff([1,2,3|E]-E,X).
+
+X = 3
+==
+</div>
+
+<div class="nb-cell program" name="p1">
+length_diff(L, 0) :-
+    is_empty_diff(L).
+
+length_diff([H|T]-E, L) :-
+    not(is_empty_diff([H|T]-E)),
+    length_diff(T-E,PL),
+    L is PL + 1.
+</div>
+
+<div class="nb-cell query" name="q1">
+length_diff([1,2,3|E]-E,X)
+</div>
+
+<div class="nb-cell markdown" name="md3">
+### 2. member_diff/2
+Proszę napisać predykat _member_diff/2_, który sprawdzi czy zadany element należy do listy różnicowej.
+
+==
+?- member_diff(3,[1,2,3|E]-E).
+
+true
+
+?- member_diff(3,[1,2,4,5|E]-E).
+
+false
+==
+</div>
+
+<div class="nb-cell program" name="p2">
+member_diff(X,[X|T]-E):- not(is_empty_diff([X|T]-E)).
+                             
+member_diff(Y,[H|T]-E):-
+    not(is_empty_diff([H|T]-E)),
+    member_diff(Y,T-E).
+
+
+%member_diff(4,[1,2,3|E]-E).
+</div>
+
+<div class="nb-cell markdown" name="md4">
+
+</div>
+
+</div>

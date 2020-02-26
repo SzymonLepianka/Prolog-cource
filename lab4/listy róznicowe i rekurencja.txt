@@ -1,0 +1,15 @@
+length_diff(L, 0) :-
+    is_empty_diff(L).
+
+length_diff([H|T]-E, L) :-
+    not(is_empty_diff([H|T]-E)),
+    length_diff(T-E,PL),
+    L is PL + 1.
+
+
+
+member_diff(X,[X|T]-E):- not(is_empty_diff([X|T]-E)).
+                             
+member_diff(Y,[H|T]-E):-
+    not(is_empty_diff([H|T]-E)),
+    member_diff(Y,T-E).

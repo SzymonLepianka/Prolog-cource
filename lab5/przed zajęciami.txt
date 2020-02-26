@@ -1,0 +1,10 @@
+neg(Goal) :- call(Goal), !, fail.
+neg(_).
+
+ifelse(Condition, Action1, _) :- call(Condition), !, call(Action1).  
+ifelse(_, _, Action2) :- call(Action2).
+
+		zad.5_1
+		not(Q) :- call(Q), !, false;true.
+
+		ifelse(Warunek,Prawda,Falsz):- call(Warunek),!,Prawda;Falsz.
